@@ -7,7 +7,7 @@
         name: 
         - boto3
         - botocore
-        executable: pip-3.6
+        executable: pip3
     - name: Launch instance build
       ec2:
         group_id: build
