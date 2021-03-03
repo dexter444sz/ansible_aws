@@ -114,5 +114,5 @@
         bucket: mybacket10.test444.com
         object: hello-1.0.war
         dest: /var/lib/tomcat9/webapps/
-       mode: get
+        mode: get
         
