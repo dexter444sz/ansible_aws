@@ -2,6 +2,12 @@
 - hosts: localhost
   connection: local
   tasks:
+    - name: Ensure boto3  is present
+      pip:
+        name: 
+        - boto3
+        - botocore
+        executable: pip-3.6
     - name: Launch instance build
       ec2:
         group_id: build
