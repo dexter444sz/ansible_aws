@@ -10,6 +10,7 @@
         executable: pip3
     - name: Launch instance build
       ec2:
+        region: us-east-2
         group_id: build
         group: MySecurityGroup
         key_name: my-key1
@@ -72,6 +73,7 @@
   tasks:
     - name: Launch instance deploy
       ec2:
+        region: us-east-2
         group_id: deploy
         group: MySecurityGroup
         key_name: my-key1
