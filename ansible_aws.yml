@@ -1,0 +1,82 @@
+---
+- hosts: ec2_instances
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Launch instance build
+      ec2:
+        group: MySecurityGroup
+        key_name: my-key1
+        image: ami-0996d3051b72b5b2c
+        instance_type: t2.micro
+        wait: yes
+        wait_timeout: 500
+        assign_public_ip: yes
+        instance_tags:
+          Name: "Build"
+    - name: Launch instance deploy
+      ec2:
+        group: MySecurityGroup
+        key_name: my-key1
+        image: ami-0996d3051b72b5b2c
+        instance_type: t2.micro
+        wait: yes
+        wait_timeout: 500
+        assign_public_ip: yes
+        instance_tags:
+          Name: "Deploy"
+
+  - name: build app
+  hosts: Build
+  become: yes
+
+  tasks:
+  - name: ensure default-jdk package is peresent
+    apt:
+      name: default-jdk
+      state: present
+
+  - name: ensure maven package is present
+    apt:
+      name: maven
+      state: present
+
+  - name: clone app from GitHub
+    git:
+      repo: https://github.com/boxfuse/boxfuse-sample-java-war-hello.git
+      dest: /home/boxfuse-sample-java-war-hello/
+
+  - name: build app
+    shell: mvn package
+    args:
+      chdir: /home/boxfuse-sample-java-war-hello/
+
+  - name: Put artifact in bucket
+    aws_s3:
+      bucket: mybacket10.test444.com
+      object: hello-1.0.war
+      src: /home/boxfuse-sample-java-war-hello/target/hello-1.0.war
+      mode: put
+
+- name: deploy app
+  hosts: Deploy
+  become: yes
+
+  tasks:
+  - name: ensure default-jdk package is peresent
+    apt:
+      name: default-jdk
+      state: present
+
+  - name: ensure tomcat package is present
+    apt:
+      name: tomcat9
+      state: present
+
+  - name: ensure .war file is present
+    aws_s3:
+      bucket: mybacket10.test444.com
+      object: hello-1.0.war
+      dest: /var/lib/tomcat9/webapps/
+      mode: get
+        
